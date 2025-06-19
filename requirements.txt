@@ -1,5 +1,4 @@
-pymupdf
-os
-dotenv
-openai
 streamlit
+openai
+pymupdf
+python-dotenv
