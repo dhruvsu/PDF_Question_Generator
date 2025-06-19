@@ -1,0 +1,5 @@
+fitz
+os
+dotenv
+openai
+streamlit
