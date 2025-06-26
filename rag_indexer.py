@@ -1,19 +1,21 @@
-import chromadb
-from openai import OpenAI
+from sentence_transformers import SentenceTransformer
+import faiss
+import numpy as np
 
-client = OpenAI()
-embedding_model = "text-embedding-3-small"  # or 3-large
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-chroma_client = chromadb.Client()
-collection = chroma_client.get_or_create_collection(name="pdf_chunks")
-
+chunks_store = []
+embedding_store = []
+faiss_index = None
 
 def index_chunks(chunks):
-    for i, chunk in enumerate(chunks):
-        embedding = (
-            client.embeddings.create(input=chunk, model=embedding_model)
-            .data[0]
-            .embedding
-        )
+    global faiss_index, chunks_store, embedding_store
 
-        collection.add(documents=[chunk], embeddings=[embedding], ids=[str(i)])
+    embeddings = model.encode(chunks, convert_to_numpy=True)
+
+    chunks_store = chunks
+    embedding_store = embeddings
+
+    dim = embeddings.shape[1]
+    faiss_index = faiss.IndexFlatL2(dim)
+    faiss_index.add(embeddings)
